@@ -1,6 +1,6 @@
-#!/bin/bash
-#SBATCH –t 0:02:00
-#SBATCH –n 1
+#!/bin/sh
+#SBATCH --time=1
+#SBATCH -N 1
 
 echo “Let’s do some work”
 sleep 20
