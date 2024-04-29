@@ -6,7 +6,7 @@
 module load gnu9/9.4.0
 
 conda init
-conda activate anaconda-test
+conda activate bpai
 
 which python
 
