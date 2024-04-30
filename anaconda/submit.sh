@@ -5,9 +5,8 @@
 
 module load gnu9/9.4.0
 
-which python
-conda init
-conda activate var/scratch/dfe340/anaconda3/envs/bpai/bin/python/bpai
+#conda init
+conda activate bpai
 cp -r $HOME/slurm-bpai-tutorial/anaconda $TMPDIR/dfe340/
 cd $TMPDIR/dfe340/anaconda
 python script.py
