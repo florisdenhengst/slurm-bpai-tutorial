@@ -5,7 +5,7 @@
 
 module load gnu9/9.4.0
 
-#conda init
+conda init
 conda activate bpai
 cp -r $HOME/slurm-bpai-tutorial/anaconda $TMPDIR/dfe340/
 cd $TMPDIR/dfe340/anaconda
