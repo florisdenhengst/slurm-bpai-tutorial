@@ -88,10 +88,10 @@ if __name__ == "__main__":
     frame_size = (64, 64)
     max_cycles = 125
     total_episodes = 2
-
+# render_mode="rgb_array", removed this from env
     """ ENV SETUP """
     env = pistonball_v6.parallel_env(
-        render_mode="rgb_array", continuous=False, max_cycles=max_cycles
+         continuous=False, max_cycles=max_cycles
     )
     env = color_reduction_v0(env)
     env = resize_v1(env, frame_size[0], frame_size[1])
@@ -245,9 +245,9 @@ if __name__ == "__main__":
         print(f"Clip Fraction: {np.mean(clip_fracs)}")
         print(f"Explained Variance: {explained_var.item()}")
         print("\n-------------------------------------------\n")
-
+# render_mode="human", removed again
     """ RENDER THE POLICY """
-    env = pistonball_v6.parallel_env(render_mode="human", continuous=False)
+    env = pistonball_v6.parallel_env(continuous=False)
     env = color_reduction_v0(env)
     env = resize_v1(env, 64, 64)
     env = frame_stack_v1(env, stack_size=4)
