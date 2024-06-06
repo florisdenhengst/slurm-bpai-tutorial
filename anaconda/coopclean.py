@@ -5,7 +5,7 @@ import torch.optim as optim
 from supersuit import color_reduction_v0, frame_stack_v1, resize_v1
 from torch.distributions.categorical import Categorical
 #from pettingzoo.butterfly import entombed_cooperative_v4
-from pettingzoo.atari import entombed_cooperative_v4
+from pettingzoo.atari import entombed_cooperative_v3
 
 class Agent(nn.Module):
     def __init__(self, num_actions):
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     total_episodes = 100
 
     """ENV SETUP"""
-    env = entombed_cooperative_v4.parallel_env(render_mode="rgb_array", max_cycles=max_cycles)
+    env = entombed_cooperative_v3.parallel_env(render_mode="rgb_array", max_cycles=max_cycles)
     env = color_reduction_v0(env)
     env = resize_v1(env, frame_size[0], frame_size[1])
     env = frame_stack_v1(env, stack_size=stack_size)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         print("\n-------------------------------------------\n")
 
     """ setup"""
-    env = entombed_cooperative_v4.parallel_env(render_mode="human", continuous=False)
+    env = entombed_cooperative_v3.parallel_env(render_mode="human", continuous=False)
     env = color_reduction_v0(env)
     env = resize_v1(env, 64, 64)
     env = frame_stack_v1(env, stack_size=4)
