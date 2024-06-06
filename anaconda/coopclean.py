@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.optim as optim
 from supersuit import color_reduction_v0, frame_stack_v1, resize_v1
 from torch.distributions.categorical import Categorical
-from pettingzoo.butterfly import entombed_cooperative_v4
-
+#from pettingzoo.butterfly import entombed_cooperative_v4
+from pettingzoo.atari import entombed_cooperative_v4
 
 class Agent(nn.Module):
     def __init__(self, num_actions):
