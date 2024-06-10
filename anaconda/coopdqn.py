@@ -128,10 +128,11 @@ if __name__ == "__main__":
     obs = env.reset(seed=args.seed)
     for global_step in range(args.total_timesteps):
         # Log Q-values at the start of each episode
-        if global_step % 1000 == 0:
-            q_values = q_network(torch.Tensor(obs).to(device))
-            writer.add_histogram("q_values", q_values, global_step)
-            print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+        # if global_step % 1000 == 0:
+        #     q_values = q_network(torch.Tensor(obs).to(device))
+        #     writer.add_histogram("q_values", q_values, global_step)
+        #     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+            
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
         actions = {}
         for agent in env.possible_agents:
