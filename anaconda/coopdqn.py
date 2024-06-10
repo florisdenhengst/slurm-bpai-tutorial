@@ -126,41 +126,24 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs = env.reset(seed=args.seed)
-
-    # Debug print statements
-    print(f"Initial observation: {obs}")
-
+    
     for global_step in range(args.total_timesteps):
-        epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
-        actions = select_action(obs, q_network, epsilon, device, action_space, env.possible_agents)
-        next_obs, rewards, terminations, truncations, infos = env.step(actions)
-
-        # Debug print statements to understand the structure
-        print(f"Step {global_step}")
-        print(f"Observations: {obs}")
-        print(f"Next Observations: {next_obs}")
-        print(f"Rewards: {rewards}")
-        print(f"Terminations: {terminations}")
-        print(f"Truncations: {truncations}")
-        print(f"Infos: {infos}")
-
-    # for global_step in range(args.total_timesteps):
-    #     # Log Q-values at the start of each episode
-    #     # if global_step % 1000 == 0:
-    #     #     q_values = q_network(torch.Tensor(obs).to(device))
-    #     #     writer.add_histogram("q_values", q_values, global_step)
-    #     #     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+        # Log Q-values at the start of each episode
+        # if global_step % 1000 == 0:
+        #     q_values = q_network(torch.Tensor(obs).to(device))
+        #     writer.add_histogram("q_values", q_values, global_step)
+        #     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
             
-    #     epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
-    #     actions = {}
-    #     for agent in env.possible_agents:
-    #         if random.random() < epsilon:
-    #             actions[agent] = env.action_space(agent).sample()
-    #         else:
-    #             q_values = q_network(torch.Tensor(obs[agent]).unsqueeze(0).to(device))
-    #             actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
+        epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
+        actions = {}
+        for agent in env.possible_agents:
+            if random.random() < epsilon:
+                actions[agent] = env.action_space(agent).sample()
+            else:
+                q_values = q_network(torch.Tensor(obs[agent]).unsqueeze(0).to(device))
+                actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
-    #     next_obs, rewards, terminations, truncations, infos = env.step(actions)
+        next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
         for agent in env.possible_agents:
             real_next_obs = next_obs[agent]
