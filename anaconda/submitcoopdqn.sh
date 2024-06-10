@@ -8,7 +8,8 @@ cp -r $HOME/slurm-bpai-tutorial/anaconda $TMPDIR/dfe340
 cd $TMPDIR/dfe340/anaconda/
 conda init
 conda activate bpai
-python coopdqn.py  --env-id entombed_competitive_v3 --total-timesteps 500000 
+# coopdqn.py is the actual one, this is just a test
+python dqntest.py  --env-id entombed_competitive_v3 --total-timesteps 500000 
 
 #python dqnslurm.py --seed $SLURM_ARRAY_TASK_ID --env-id entombed_competitive_v3 --total-timesteps 500000 --track --wandb-project-name cleanrldas --capture_video
 mkdir -p $HOME/slurm-bpai-tutorial/results
