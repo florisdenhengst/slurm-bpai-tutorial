@@ -154,12 +154,14 @@ if __name__ == "__main__":
     target_network = QNetwork(action_space.n).to(device)
     target_network.load_state_dict(q_network.state_dict())
 
+    # Updated ReplayBuffer to handle multiple agents
     rb = ReplayBuffer(
         args.buffer_size,
-        env.observation_space(env.possible_agents[0]),
-        env.action_space(env.possible_agents[0]),
+        env.observation_space(env.possible_agents[0]).shape,
+        (1,),  # Action shape, typically a single action per step
         device,
         handle_timeout_termination=False,
+        n_envs=args.num_envs
     )
     start_time = time.time()
 
