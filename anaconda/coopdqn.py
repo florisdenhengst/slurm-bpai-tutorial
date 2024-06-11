@@ -187,10 +187,16 @@ if __name__ == "__main__":
             obs, _ = env.reset(seed=args.seed)
         else:
             for agent in env.possible_agents:
-                real_next_obs = next_obs[agent]
-                if truncations[agent]:
-                    real_next_obs = infos[agent]["final_observation"]
-                rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
+                if agent == 'first_0':
+                    real_next_obs = next_obs[agent]
+                    if truncations[agent]:
+                        real_next_obs = infos[agent]["final_observation"]
+                    rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
+                elif agent == 'second_0':
+                    real_next_obs = next_obs[agent]
+                    if truncations[agent]:
+                        real_next_obs = infos[agent]["final_observation"]
+                    rb2.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
         
 
