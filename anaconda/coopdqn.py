@@ -156,15 +156,16 @@ if __name__ == "__main__":
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
         actions = {}
         for agent in env.possible_agents:
-            print(agent)
-            print(env.possible_agents)
-            if random.random() < epsilon:
-                actions[agent] = env.action_space(agent).sample()
-            else:
-                #.permute((2,0,1)) prob wrong
-                #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
-                q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
-                actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
+            if agent == 'first_0':
+                print(agent)
+                print(env.possible_agents)
+                if random.random() < epsilon:
+                    actions[agent] = env.action_space(agent).sample()
+                else:
+                    #.permute((2,0,1)) prob wrong
+                    #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
+                    q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
+                    actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
