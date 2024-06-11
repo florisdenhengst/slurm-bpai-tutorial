@@ -156,6 +156,8 @@ if __name__ == "__main__":
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
         actions = {}
         for agent in env.possible_agents:
+            print(agent)
+            print(env.possible_agents)
             if random.random() < epsilon:
                 actions[agent] = env.action_space(agent).sample()
             else:
