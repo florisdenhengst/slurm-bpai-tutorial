@@ -107,7 +107,7 @@ if __name__ == "__main__":
     torch.backends.cudnn.deterministic = args.torch_deterministic
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
-
+# all of these are now fitted to the samw agent, so i will need to make this and the training and the buffer for both
     env = make_env(args.seed, args.capture_video, run_name)()
     env.reset(seed=args.seed)
     action_space = env.action_space(env.possible_agents[0]).n
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     )
     start_time = time.time()
 
-    obs = env.reset(seed=args.seed)
+    obs, _ = env.reset(seed=args.seed)
     
     for global_step in range(args.total_timesteps):
         # Log Q-values at the start of each episode
@@ -140,16 +140,22 @@ if __name__ == "__main__":
             if random.random() < epsilon:
                 actions[agent] = env.action_space(agent).sample()
             else:
-                q_values = q_network(torch.Tensor(obs[agent]).unsqueeze(0).to(device))
+                q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                 actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
-        for agent in env.possible_agents:
-            real_next_obs = next_obs[agent]
-            if truncations[agent]:
-                real_next_obs = infos[agent]["final_observation"]
-            rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
+        # reset manually
+        if not(env.agents):
+            obs, _ = env.reset(seed=args.seed)
+        else:
+            for agent in env.possible_agents:
+                real_next_obs = next_obs[agent]
+                if truncations[agent]:
+                    real_next_obs = infos[agent]["final_observation"]
+                rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
+
+        
 
         obs = next_obs
 
