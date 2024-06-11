@@ -110,11 +110,22 @@ if __name__ == "__main__":
 # all of these are now fitted to the samw agent, so i will need to make this and the training and the buffer for both
     env = make_env(args.seed, args.capture_video, run_name)()
     env.reset(seed=args.seed)
+    # added variables for everything for player 2
     action_space = env.action_space(env.possible_agents[0]).n
+    action_space2 = env.action_space(env.possible_agents[1]).n
+
     q_network = QNetwork(action_space).to(device)
+    q_network2 = QNetwork(action_space2).to(device)
+
     optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
+    optimizer2 = optim.Adam(q_network2.parameters(), lr=args.learning_rate)
+
     target_network = QNetwork(action_space).to(device)
+    target_network2 = QNetwork(action_space2).to(device)
+
     target_network.load_state_dict(q_network.state_dict())
+    target_network2.load_state_dict(q_network2.state_dict())
+
 
     rb = ReplayBuffer(
         args.buffer_size,
@@ -123,10 +134,18 @@ if __name__ == "__main__":
         device,
         handle_timeout_termination=False,
     )
+    # added replay buffer for p2
+    rb2 = ReplayBuffer(
+        args.buffer_size,
+        env.observation_space(env.possible_agents[1]),
+        env.action_space(env.possible_agents[1]),
+        device,
+        handle_timeout_termination=False,
+    )
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
-    
+    # from here i still need to add p2 things
     for global_step in range(args.total_timesteps):
         # Log Q-values at the start of each episode
         # if global_step % 1000 == 0:
@@ -140,6 +159,7 @@ if __name__ == "__main__":
             if random.random() < epsilon:
                 actions[agent] = env.action_space(agent).sample()
             else:
+                print(obs[agent])
                 q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                 actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
