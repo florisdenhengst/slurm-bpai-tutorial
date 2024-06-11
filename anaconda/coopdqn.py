@@ -171,15 +171,15 @@ if __name__ == "__main__":
                 print(agent)
                 print(env.possible_agents)
                 if random.random() < epsilon:
-                    actions2[agent] = env.action_space(agent).sample()
+                    actions[agent] = env.action_space(agent).sample()
                 else:
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
                     q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
-                    actions2[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
+                    actions[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
 
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
-        next_obs2, rewards2, terminations2, truncations2, infos2 = env.step(actions2)
+        #next_obs2, rewards2, terminations2, truncations2, infos2 = env.step(actions2)
 
         # reset manually
         if not(env.agents):
