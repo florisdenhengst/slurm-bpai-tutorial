@@ -159,9 +159,9 @@ if __name__ == "__main__":
             if random.random() < epsilon:
                 actions[agent] = env.action_space(agent).sample()
             else:
-                #print(torch.Tensor(obs[agent])) .permute((2,0,1))
-                print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
-                q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
+                #.permute((2,0,1)) prob wrong
+                print((torch.Tensor(obs[agent]).permute((0,3,1,2)).unsqueeze(0).to(device)))
+                q_values = q_network(torch.Tensor(obs[agent]).permute((0,3,1,2)).unsqueeze(0).to(device))
                 actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
