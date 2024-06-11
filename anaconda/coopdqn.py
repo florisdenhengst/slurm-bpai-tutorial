@@ -160,6 +160,7 @@ if __name__ == "__main__":
                 actions[agent] = env.action_space(agent).sample()
             else:
                 #print(torch.Tensor(obs[agent])) .permute((2,0,1))
+                print(obs[agent])
                 q_values = q_network(torch.Tensor(obs[agent]).unsqueeze(0).to(device))
                 actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
