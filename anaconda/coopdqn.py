@@ -57,7 +57,7 @@ def make_env(seed, capture_video, run_name):
 
 
 class QNetwork(nn.Module):
-    def __init__(self, action_space):
+    def __init__(self, envs):
         super().__init__()
         self.network = nn.Sequential(
             nn.Conv2d(4, 32, 8, stride=4),
@@ -69,7 +69,7 @@ class QNetwork(nn.Module):
             nn.Flatten(),
             nn.Linear(64 * 7 * 7, 512),
             nn.ReLU(),
-            nn.Linear(512, action_space)
+            nn.Linear(512, envs.single_action_space.n)
         )
 
     def forward(self, x):
