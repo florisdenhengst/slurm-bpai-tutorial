@@ -179,7 +179,7 @@ if __name__ == "__main__":
                     actions[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
         
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
-        print(next_obs)
+        print(next_obs['first_0'])
         #next_obs2, rewards2, terminations2, truncations2, infos2 = env.step(actions2)
 
         # reset manually
