@@ -73,7 +73,8 @@ class QNetwork(nn.Module):
         )
 
     def forward(self, x):
-        return self.network(x / 255.0)
+        x = self.network(x / 255.0)
+        return self.fc(x)
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
@@ -166,7 +167,7 @@ if __name__ == "__main__":
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
                     #q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).to(device))
-                    q_values = q_network(torch.Tensor(obs).permute((2,0,1)).unsqueeze(0).to(device))
+                    q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
                 #print(agent)
@@ -177,7 +178,7 @@ if __name__ == "__main__":
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
                     #q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).to(device))
-                    q_values2 = q_network2(torch.Tensor(obs).permute((2,0,1)).unsqueeze(0).to(device))
+                    q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
         
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
