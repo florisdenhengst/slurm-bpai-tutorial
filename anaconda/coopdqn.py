@@ -219,7 +219,7 @@ if __name__ == "__main__":
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
                     target_max, _ = target_network(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)
-                    td_target = data.rewards.flatten() + gamma * target_max * (1 - data.dones.flatten())
+                    td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
                 old_val = q_network(data.observations.permute(0, 3, 1, 2)).gather(1, data.actions).squeeze()
                 loss = F.mse_loss(td_target, old_val)
 
