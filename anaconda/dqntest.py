@@ -105,9 +105,9 @@ def select_action(obs, q_network, epsilon, device, action_space):
 def optimize_model(rb, q_network, target_network, optimizer, batch_size, gamma, device):
     data = rb.sample(batch_size)
     with torch.no_grad():
-        target_max, _ = target_network(data.next_observations).max(dim=1)
+        target_max, _ = target_network(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)
         td_target = data.rewards.flatten() + gamma * target_max * (1 - data.dones.flatten())
-    old_val = q_network(data.observations).gather(1, data.actions).squeeze()
+    old_val = q_network(data.observations.permute(0, 3, 1, 2)).gather(1, data.actions).squeeze()
     loss = F.mse_loss(td_target, old_val)
 
     optimizer.zero_grad()
