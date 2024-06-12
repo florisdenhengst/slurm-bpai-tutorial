@@ -70,14 +70,23 @@ class QNetwork(nn.Module):
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
-            nn.Flatten(),
-            nn.Linear(64 * 7 * 7, 512),
+            nn.Flatten()
+        )
+        # Dummy input to infer the size of the output of conv layers
+        with torch.no_grad():
+            dummy_input = torch.zeros(1, 4, 64, 64)
+            dummy_output = self.network(dummy_input)
+            n_flatten = dummy_output.shape[1]
+
+        self.fc = nn.Sequential(
+            nn.Linear(n_flatten, 512),
             nn.ReLU(),
             nn.Linear(512, action_space)
         )
 
     def forward(self, x):
-        return self.network(x / 255.0)
+        x = self.network(x / 255.0)
+        return self.fc(x)
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
