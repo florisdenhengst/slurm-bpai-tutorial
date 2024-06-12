@@ -181,7 +181,7 @@ if __name__ == "__main__":
     )
     
     start_time = time.time()
-    obs = env.reset(seed=args.seed)
+    obs, _ = env.reset(seed=args.seed)
 
     for global_step in range(args.total_timesteps):
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
         if not env.agents:
-            obs = env.reset(seed=args.seed)
+            obs ,_= env.reset(seed=args.seed)
         else:
             for agent in env.possible_agents:
                 real_next_obs = next_obs[agent]
