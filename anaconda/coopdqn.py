@@ -154,8 +154,11 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
+    print('start main')
 # from here i still need to add p2 things
     for global_step in range(args.total_timesteps):
+        if global_step % 100 == 0:
+            print(f"Global step: {global_step}")
         # Log Q-values at the start of each episode
         # if global_step % 1000 == 0:
         #     q_values = q_network(torch.Tensor(obs).to(device))
@@ -195,6 +198,7 @@ if __name__ == "__main__":
 
         # reset manually
         if not(env.agents):
+            print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
         else:
             for agent in env.possible_agents:
@@ -216,6 +220,7 @@ if __name__ == "__main__":
 
         if global_step > args.learning_starts:
             if global_step % args.train_frequency == 0:
+                print("Optimizing models...")
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
                     target_max, _ = target_network(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)
@@ -234,8 +239,9 @@ if __name__ == "__main__":
                 optimizer.step()
 
             if global_step % args.target_network_frequency == 0:
+                print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
-
+    print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
