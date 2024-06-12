@@ -67,7 +67,6 @@ class QNetwork(nn.Module):
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
             nn.Flatten(),
-            print('here'),
             #if i change this so the dimensions are the same, it does not run at all(no print statemetns so it does not start the looop)
             #nn.Linear(1024, 512),
             nn.Linear(64 * 7 * 7, 512),
