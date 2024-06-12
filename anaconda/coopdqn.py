@@ -145,7 +145,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
-    # from here i still need to add p2 things
+# from here i still need to add p2 things
     for global_step in range(args.total_timesteps):
         # Log Q-values at the start of each episode
         # if global_step % 1000 == 0:
@@ -158,28 +158,30 @@ if __name__ == "__main__":
         actions2 = {}
         for agent in env.possible_agents:
             if agent == 'first_0':
-                print(agent)
-                print(env.possible_agents)
+                #print(agent)
+                #print(env.possible_agents)
                 if random.random() < epsilon:
                     actions[agent] = env.action_space(agent).sample()
                 else:
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
-                    q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
+                    q_values = q_network(torch.Tensor(obs[agent]).to(device))
+                    #q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
-                print(agent)
-                print(env.possible_agents)
+                #print(agent)
+                #print(env.possible_agents)
                 if random.random() < epsilon:
                     actions[agent] = env.action_space(agent).sample()
                 else:
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
-                    q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
+                    q_values2 = q_network2(torch.Tensor(obs[agent]).to(device))
+                    #q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
         
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
-        print(next_obs['first_0'])
+        #print(next_obs['first_0'])
         #next_obs2, rewards2, terminations2, truncations2, infos2 = env.step(actions2)
 
         # reset manually
@@ -187,6 +189,7 @@ if __name__ == "__main__":
             obs, _ = env.reset(seed=args.seed)
         else:
             for agent in env.possible_agents:
+                # might need to also add the agent['first_0'] to all the agent but im not sure
                 if agent == 'first_0':
                     real_next_obs = next_obs[agent]
                     if truncations[agent]:
@@ -199,7 +202,7 @@ if __name__ == "__main__":
                     rb2.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
         
-
+# now im here
         obs = next_obs
 
         if global_step > args.learning_starts:
