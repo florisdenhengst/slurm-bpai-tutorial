@@ -178,6 +178,7 @@ if __name__ == "__main__":
                 if random.random() < epsilon:
                     actions[agent] = env.action_space(agent).sample()
                 else:
+                    print('im not at the error')
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
                     #q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).to(device))
