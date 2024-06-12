@@ -10,6 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import tyro
 from stable_baselines3.common.buffers import ReplayBuffer
+from stable_baselines3.common.preprocessing import preprocess_obs
 from torch.utils.tensorboard import SummaryWriter
 
 from pettingzoo.atari import entombed_cooperative_v3
@@ -84,15 +85,12 @@ def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     return max(slope * t + start_e, end_e)
 
 
-def select_action(obs, q_network, epsilon, device, action_space, possible_agents):
-    actions = {}
-    for agent in possible_agents:
-        if random.random() < epsilon:
-            actions[agent] = action_space.sample()
-        else:
-            q_values = q_network(torch.Tensor(obs[agent]).unsqueeze(0).to(device))
-            actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
-    return actions
+def select_action(obs, q_network, epsilon, device, action_space):
+    if random.random() < epsilon:
+        return action_space.sample()
+    else:
+        q_values = q_network(torch.Tensor(obs).permute((2, 0, 1)).unsqueeze(0).to(device))
+        return torch.argmax(q_values, dim=1).cpu().numpy()[0]
 
 
 def optimize_model(rb, q_network, target_network, optimizer, batch_size, gamma, device):
@@ -148,69 +146,100 @@ if __name__ == "__main__":
 
     env = make_env(args.seed, args.capture_video, run_name)()
     env.reset(seed=args.seed)
+    
     action_space = env.action_space(env.possible_agents[0])
-    q_network = QNetwork(action_space.n).to(device)
-    optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
-    target_network = QNetwork(action_space.n).to(device)
-    target_network.load_state_dict(q_network.state_dict())
+    action_space2 = env.action_space(env.possible_agents[1])
 
-    # Updated ReplayBuffer to handle multiple agents
+    q_network = QNetwork(action_space.n).to(device)
+    q_network2 = QNetwork(action_space2.n).to(device)
+
+    optimizer = optim.Adam(q_network.parameters(), lr=args.learning_rate)
+    optimizer2 = optim.Adam(q_network2.parameters(), lr=args.learning_rate)
+
+    target_network = QNetwork(action_space.n).to(device)
+    target_network2 = QNetwork(action_space2.n).to(device)
+
+    target_network.load_state_dict(q_network.state_dict())
+    target_network2.load_state_dict(q_network2.state_dict())
+
     rb = ReplayBuffer(
         args.buffer_size,
-        env.observation_space(env.possible_agents[0]).shape,
-        (1,),  # Action shape, typically a single action per step
+        env.observation_space(env.possible_agents[0]),
+        action_space,
         device,
         handle_timeout_termination=False,
         n_envs=args.num_envs
     )
-    start_time = time.time()
-
-    obs = env.reset(seed=args.seed)
     
-    # Debug print statements
-    print(f"Initial observation: {obs}")
+    rb2 = ReplayBuffer(
+        args.buffer_size,
+        env.observation_space(env.possible_agents[1]),
+        action_space2,
+        device,
+        handle_timeout_termination=False,
+        n_envs=args.num_envs
+    )
+    
+    start_time = time.time()
+    obs = env.reset(seed=args.seed)
 
     for global_step in range(args.total_timesteps):
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
-        actions = select_action(obs, q_network, epsilon, device, action_space, env.possible_agents)
+        actions = {}
+        for agent in env.possible_agents:
+            if agent == 'first_0':
+                actions[agent] = select_action(obs[agent], q_network, epsilon, device, action_space)
+            elif agent == 'second_0':
+                actions[agent] = select_action(obs[agent], q_network2, epsilon, device, action_space2)
+        
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
-        # Debug print statements to understand the structure
-        print(f"Step {global_step}")
-        print(f"Observations: {obs}")
-        print(f"Next Observations: {next_obs}")
-        print(f"Rewards: {rewards}")
-        print(f"Terminations: {terminations}")
-        print(f"Truncations: {truncations}")
-        print(f"Infos: {infos}")
-
-        for agent in env.possible_agents:
-            real_next_obs = next_obs[agent] if isinstance(next_obs, dict) else next_obs[env.possible_agents.index(agent)]
-            if truncations[agent] if isinstance(truncations, dict) else truncations[env.possible_agents.index(agent)]:
-                real_next_obs = infos[agent]["final_observation"] if isinstance(infos, dict) else infos[env.possible_agents.index(agent)]["final_observation"]
-            rb.add(
-                obs[agent] if isinstance(obs, dict) else obs[env.possible_agents.index(agent)],
-                real_next_obs,
-                actions[agent] if isinstance(actions, dict) else actions[env.possible_agents.index(agent)],
-                rewards[agent] if isinstance(rewards, dict) else rewards[env.possible_agents.index(agent)],
-                terminations[agent] if isinstance(terminations, dict) else terminations[env.possible_agents.index(agent)],
-                infos[agent] if isinstance(infos, dict) else infos[env.possible_agents.index(agent)]
-            )
+        if not env.agents:
+            obs = env.reset(seed=args.seed)
+        else:
+            for agent in env.possible_agents:
+                real_next_obs = next_obs[agent]
+                if truncations[agent]:
+                    real_next_obs = infos[agent]["final_observation"]
+                
+                if agent == 'first_0':
+                    rb.add(
+                        preprocess_obs(obs[agent], env.observation_space(env.possible_agents[0]), device),
+                        preprocess_obs(real_next_obs, env.observation_space(env.possible_agents[0]), device),
+                        actions[agent],
+                        rewards[agent],
+                        terminations[agent],
+                        infos[agent]
+                    )
+                elif agent == 'second_0':
+                    rb2.add(
+                        preprocess_obs(obs[agent], env.observation_space(env.possible_agents[1]), device),
+                        preprocess_obs(real_next_obs, env.observation_space(env.possible_agents[1]), device),
+                        actions[agent],
+                        rewards[agent],
+                        terminations[agent],
+                        infos[agent]
+                    )
 
         obs = next_obs
 
         if global_step > args.learning_starts:
             if global_step % args.train_frequency == 0:
                 loss, old_val = optimize_model(rb, q_network, target_network, optimizer, args.batch_size, args.gamma, device)
+                loss2, old_val2 = optimize_model(rb2, q_network2, target_network2, optimizer2, args.batch_size, args.gamma, device)
+
                 if global_step % 100 == 0:
                     log_metrics(writer, global_step, loss, old_val, start_time)
+                    log_metrics(writer, global_step, loss2, old_val2, start_time)
 
             if global_step % args.target_network_frequency == 0:
                 target_network.load_state_dict(q_network.state_dict())
+                target_network2.load_state_dict(q_network2.state_dict())
 
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
+        torch.save(q_network2.state_dict(), model_path + "_p2")
         print(f"Model saved to {model_path}")
 
     env.close()
