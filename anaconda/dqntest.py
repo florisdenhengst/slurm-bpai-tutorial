@@ -204,8 +204,8 @@ if __name__ == "__main__":
                 
                 if agent == 'first_0':
                     rb.add(
-                        preprocess_obs(obs[agent], env.observation_space(env.possible_agents[0]), device),
-                        preprocess_obs(real_next_obs, env.observation_space(env.possible_agents[0]), device),
+                        obs[agent],
+                        real_next_obs, 
                         actions[agent],
                         rewards[agent],
                         terminations[agent],
@@ -213,8 +213,8 @@ if __name__ == "__main__":
                     )
                 elif agent == 'second_0':
                     rb2.add(
-                        preprocess_obs(obs[agent], env.observation_space(env.possible_agents[1]), device),
-                        preprocess_obs(real_next_obs, env.observation_space(env.possible_agents[1]), device),
+                        obs[agent], 
+                        real_next_obs, 
                         actions[agent],
                         rewards[agent],
                         terminations[agent],
