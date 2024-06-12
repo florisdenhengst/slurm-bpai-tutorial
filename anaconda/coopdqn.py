@@ -183,7 +183,7 @@ if __name__ == "__main__":
                     #.permute((2,0,1)) prob wrong
                     #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
                     #q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).to(device))
-                    q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,1,0)).unsqueeze(0).to(device))
+                    q_values2 = q_network2(torch.Tensor(obs[agent]).permute((0,2,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
         
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
