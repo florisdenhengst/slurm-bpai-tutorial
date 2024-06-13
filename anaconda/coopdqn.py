@@ -110,7 +110,7 @@ if __name__ == "__main__":
     torch.backends.cudnn.deterministic = args.torch_deterministic
 
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
-# all of these are now fitted to the samw agent, so i will need to make this and the training and the buffer for both
+    
     env = make_env(args.seed, args.capture_video, run_name)()
     env.reset(seed=args.seed)
     # added variables for everything for player 2
@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
     obs, _ = env.reset(seed=args.seed)
     print('start main')
-# from here i still need to add p2 things
+
     for global_step in range(args.total_timesteps):
         if global_step % 100 == 0:
             print(f"Global step: {global_step}")
@@ -170,9 +170,6 @@ if __name__ == "__main__":
                     actions[agent] = env.action_space(agent).sample()
                 else:
                     print('same problem?')
-                    #.permute((2,0,1)) prob wrong
-                    #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
-                    #q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).to(device))
                     q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
@@ -183,15 +180,10 @@ if __name__ == "__main__":
                 else:
                     print('im not at the error')
                     print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)).shape)
-                    #.permute((2,0,1)) prob wrong
-                    #print((torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device)))
-                    #q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).to(device))
                     q_values2 = q_network2(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values2, dim=1).cpu().numpy()[0]
         
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
-        #print(next_obs['first_0'])
-        #next_obs2, rewards2, terminations2, truncations2, infos2 = env.step(actions2)
 
         # reset manually
         if not(env.agents):
@@ -240,7 +232,7 @@ if __name__ == "__main__":
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
-
+                    #p2
                     writer.add_scalar("losses/td_loss", loss2, global_step)
                     writer.add_scalar("losses/q_values", old_val2.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
@@ -249,7 +241,7 @@ if __name__ == "__main__":
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-
+                #p2
                 optimizer2.zero_grad()
                 loss2.backward()
                 optimizer2.step()
