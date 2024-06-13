@@ -66,6 +66,7 @@ class QNetwork(nn.Module):
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
+            #flatten does 64x64 and then / 4 for the frame stack, so it becomes 1024?
             nn.Flatten(),
             #if i change this so the dimensions are the same, it does not run at all(no print statemetns so it does not start the looop)
             #nn.Linear(1024, 512),
@@ -223,10 +224,25 @@ if __name__ == "__main__":
                     td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
                 old_val = q_network(data.observations.permute(0, 3, 1, 2)).gather(1, data.actions).squeeze()
                 loss = F.mse_loss(td_target, old_val)
+                # p2
+                data2 = rb2.sample(args.batch_size)
+                with torch.no_grad():
+                    target_max2, _ = target_network2(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)
+                    td_target2 = data2.rewards.flatten() + args.gamma * target_max2 * (1 - data2.dones.flatten())
+                old_val2 = q_network2(data2.observations.permute(0, 3, 1, 2)).gather(1, data2.actions).squeeze()
+                loss2 = F.mse_loss(td_target2, old_val2)
 
                 if global_step % 100 == 0:
+                    writer.add_histogram("q_values", q_values, global_step)
+                    print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
+                    print("SPS:", int(global_step / (time.time() - start_time)))
+                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+
+                    writer.add_scalar("losses/td_loss", loss2, global_step)
+                    writer.add_scalar("losses/q_values", old_val2.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
 
@@ -234,14 +250,22 @@ if __name__ == "__main__":
                 loss.backward()
                 optimizer.step()
 
+                optimizer2.zero_grad()
+                loss2.backward()
+                optimizer2.step()
+
             if global_step % args.target_network_frequency == 0:
                 print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
+                target_network2.load_state_dict(q_network2.state_dict())
     print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
+        torch.save(q_network2.state_dict(), model_path + "_p2")
         print(f"model saved to {model_path}")
+
+        
 
     env.close()
     writer.close()
