@@ -49,7 +49,7 @@ def make_env(seed, capture_video, run_name):
     def thunk():
         env = entombed_cooperative_v3.parallel_env(max_cycles=500)
         env = color_reduction_v0(env)
-        env = resize_v1(env, 64, 64)
+        env = resize_v1(env, 84, 84)
         env = frame_stack_v1(env, 4)
         return env
 
