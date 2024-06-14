@@ -225,7 +225,7 @@ if __name__ == "__main__":
                 loss2 = F.mse_loss(td_target2, old_val2)
 
                 if global_step % 100 == 0:
-                    writer.add_histogram("q_values", q_values, global_step)
+                    #writer.add_histogram("q_values", q_values, global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
 
                     writer.add_scalar("losses/td_loss", loss, global_step)
