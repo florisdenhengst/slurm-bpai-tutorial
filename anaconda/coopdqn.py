@@ -151,6 +151,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
+    q_values_dict = {}
     print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
     current_time = 0
@@ -175,6 +176,7 @@ if __name__ == "__main__":
                 else:
                     
                     q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
+
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
                 #print(agent)
@@ -208,6 +210,8 @@ if __name__ == "__main__":
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
+                    q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
+
                 elif agent == 'second_0':
                     real_next_obs = next_obs[agent]
                     if truncations[agent]:
@@ -239,7 +243,7 @@ if __name__ == "__main__":
                 if global_step % 100 == 0:
                     #writer.add_histogram("q_values", q_values, global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-
+                    writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
