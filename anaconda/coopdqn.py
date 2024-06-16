@@ -47,10 +47,13 @@ class Args:
 
 def make_env(seed, capture_video, run_name):
     def thunk():
-        env = entombed_cooperative_v3.parallel_env(max_cycles=500)
+        #removed max cycles
+        env = entombed_cooperative_v3.parallel_env()
         env = color_reduction_v0(env)
         env = resize_v1(env, 84, 84)
         env = frame_stack_v1(env, 4)
+        #if args.capture_video:
+            #env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         return env
 
     return thunk
@@ -82,7 +85,7 @@ class QNetwork(nn.Module):
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
     slope = (end_e - start_e) / duration
     return max(slope * t + start_e, end_e)
-
+#
 
 if __name__ == "__main__":
     args = tyro.cli(Args)
@@ -242,10 +245,10 @@ if __name__ == "__main__":
                     print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
                     #p2
-                    writer.add_scalar("losses/td_loss", loss2, global_step)
-                    writer.add_scalar("losses/q_values", old_val2.mean().item(), global_step)
+                    writer.add_scalar("losses/td_loss2", loss2, global_step)
+                    writer.add_scalar("losses/q_values2", old_val2.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
-                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+                    #writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
 
                 optimizer.zero_grad()
                 loss.backward()
