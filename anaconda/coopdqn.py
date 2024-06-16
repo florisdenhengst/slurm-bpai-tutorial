@@ -176,6 +176,7 @@ if __name__ == "__main__":
                 else:
                     
                     q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
+                    q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
 
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
@@ -210,7 +211,6 @@ if __name__ == "__main__":
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
-                    q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
 
                 elif agent == 'second_0':
                     real_next_obs = next_obs[agent]
