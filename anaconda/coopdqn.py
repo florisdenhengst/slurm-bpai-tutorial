@@ -149,7 +149,8 @@ if __name__ == "__main__":
 
     obs, _ = env.reset(seed=args.seed)
     print('start main')
-
+    reward_lst = {'first_0': 0, 'second_0': 0}
+    current_time = 0
     for global_step in range(args.total_timesteps):
         if global_step % 100 == 0:
             print(f"Global step: {global_step}")
@@ -186,9 +187,15 @@ if __name__ == "__main__":
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
         # reset manually
+        
         if not(env.agents):
+            writer.add_scalar("charts/episodic_return", reward_lst["first_0"], global_step)
+            writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
             print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
+            reward_lst = {'first_0': 0, 'second_0': 0}
+            current_time = global_step
+
         else:
             for agent in env.possible_agents:
                 # might need to also add the agent['first_0'] to all the agent but im not sure
@@ -196,11 +203,13 @@ if __name__ == "__main__":
                     real_next_obs = next_obs[agent]
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
+                    reward_lst['first_0']+= rewards[agent]
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
                 elif agent == 'second_0':
                     real_next_obs = next_obs[agent]
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
+                    reward_lst['second_0']+= rewards[agent]
                     rb2.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
         
