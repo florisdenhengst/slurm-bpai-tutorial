@@ -27,7 +27,7 @@ class Args:
     track: bool = False
     wandb_project_name: str = "cleanRL"
     wandb_entity: str = None
-    capture_video: bool = True
+    capture_video: bool = False
     save_model: bool = False
     upload_model: bool = False
     hf_entity: str = ""
@@ -54,8 +54,8 @@ def make_env(seed, capture_video, run_name):
         env = color_reduction_v0(env)
         env = resize_v1(env, 84, 84)
         env = frame_stack_v1(env, 4)
-        if args.capture_video:
-            env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+        # if args.capture_video:
+        #     env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         return env
 
     return thunk
