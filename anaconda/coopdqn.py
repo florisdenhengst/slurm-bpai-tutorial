@@ -210,7 +210,8 @@ if __name__ == "__main__":
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
-                    q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
+                    if q_values in locals():
+                        q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
