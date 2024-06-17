@@ -245,8 +245,8 @@ if __name__ == "__main__":
                 loss2 = F.mse_loss(td_target2, old_val2)
 
                 if global_step % 100 == 0:
-                    if 'q_values' in locals():
-                        writer.add_histogram("q_values", q_values, global_step)
+                    # if 'q_values' in locals():
+                    #     writer.add_histogram("q_values", q_values, global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
                     print(type(q_values))
                     #writer.add_scalars("Q-values", q_values_dict, global_step)
