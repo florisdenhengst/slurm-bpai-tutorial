@@ -210,9 +210,9 @@ if __name__ == "__main__":
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
-                    if 'q_values' in locals():
-                        q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
-                        print(q_values_dict)
+                    # if 'q_values' in locals():
+                    #     q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
+                    #     print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
@@ -246,7 +246,7 @@ if __name__ == "__main__":
                 if global_step % 100 == 0:
                     #writer.add_histogram("q_values", q_values, global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-                    writer.add_scalars("Q-values", q_values_dict, global_step)
+                    #writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
