@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import tyro
+import gymnasium as gym
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
@@ -26,7 +27,7 @@ class Args:
     track: bool = False
     wandb_project_name: str = "cleanRL"
     wandb_entity: str = None
-    capture_video: bool = False
+    capture_video: bool = True
     save_model: bool = False
     upload_model: bool = False
     hf_entity: str = ""
@@ -53,8 +54,8 @@ def make_env(seed, capture_video, run_name):
         env = color_reduction_v0(env)
         env = resize_v1(env, 84, 84)
         env = frame_stack_v1(env, 4)
-        #if args.capture_video:
-            #env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
+        if args.capture_video:
+            env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         return env
 
     return thunk
@@ -228,7 +229,7 @@ if __name__ == "__main__":
 
         if global_step > args.learning_starts:
             if global_step % args.train_frequency == 0:
-                print("Optimizing models...")
+                #print("Optimizing models...")
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
                     target_max, _ = target_network(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)

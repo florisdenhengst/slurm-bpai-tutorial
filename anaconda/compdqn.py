@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
         if global_step > args.learning_starts:
             if global_step % args.train_frequency == 0:
-                print("Optimizing models...")
+                #print("Optimizing models...")
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
                     target_max, _ = target_network(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)
