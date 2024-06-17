@@ -212,6 +212,7 @@ if __name__ == "__main__":
                     reward_lst['first_0']+= rewards[agent]
                     if 'q_values' in locals():
                         q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
+                        print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
