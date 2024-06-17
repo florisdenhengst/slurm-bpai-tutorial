@@ -246,7 +246,7 @@ if __name__ == "__main__":
 
                 if global_step % 100 == 0:
                     # if 'q_values' in locals():
-                    writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
+                    #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
                     print(type(q_values.cpu().detach().numpy()))
                     #writer.add_scalars("Q-values", q_values_dict, global_step)
