@@ -152,6 +152,8 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
+    q_values_dict = {}  # Dictionary to store Q-values
+
     print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
     current_time = 0
@@ -208,6 +210,7 @@ if __name__ == "__main__":
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
+                    q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
