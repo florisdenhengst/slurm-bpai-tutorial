@@ -234,7 +234,7 @@ if __name__ == "__main__":
                         q_values_dict['fire_downright'] = q_values.cpu().detach().numpy().tolist()[0][16]
                         q_values_dict['fire_downleft'] = q_values.cpu().detach().numpy().tolist()[0][17]
 
-                        print(q_values_dict)
+                        #print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
@@ -270,7 +270,7 @@ if __name__ == "__main__":
                     #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
                     print(q_values.cpu().detach().numpy()[0][0])
-                    #writer.add_scalars("Q-values", q_values_dict, global_step)
+                    writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
