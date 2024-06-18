@@ -269,8 +269,8 @@ if __name__ == "__main__":
                 if global_step % 100 == 0:
                     # if 'q_values' in locals():
                     #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
-                    print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-                    print(q_values.cpu().detach().numpy()[0][0])
+                    # print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+                    # print(q_values.cpu().detach().numpy()[0][0])
                     #writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
@@ -279,7 +279,7 @@ if __name__ == "__main__":
                     #p2
                     writer.add_scalar("losses/td_loss2", loss2, global_step)
                     writer.add_scalar("losses/q_values2", old_val2.mean().item(), global_step)
-                    print("SPS:", int(global_step / (time.time() - start_time)))
+                    #print("SPS:", int(global_step / (time.time() - start_time)))
                     #writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
 
                 optimizer.zero_grad()
