@@ -214,9 +214,27 @@ if __name__ == "__main__":
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
-                    # if 'q_values' in locals():
-                    #     q_values_dict['no_operation'] = q_values.cpu().detach().numpy().tolist()[0]
-                    #     print(q_values_dict)
+                    if 'q_values' in locals():
+                        q_values_dict['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
+                        q_values_dict['fire'] = q_values.cpu().detach().numpy().tolist()[0][1]
+                        q_values_dict['move_up'] = q_values.cpu().detach().numpy().tolist()[0][2]
+                        q_values_dict['move_right'] = q_values.cpu().detach().numpy().tolist()[0][3]
+                        q_values_dict['move_left'] = q_values.cpu().detach().numpy().tolist()[0][4]
+                        q_values_dict['move_down'] = q_values.cpu().detach().numpy().tolist()[0][5]
+                        q_values_dict['move_upright'] = q_values.cpu().detach().numpy().tolist()[0][6]
+                        q_values_dict['move_upleft'] = q_values.cpu().detach().numpy().tolist()[0][7]
+                        q_values_dict['move_downright'] = q_values.cpu().detach().numpy().tolist()[0][8]
+                        q_values_dict['move_downleft'] = q_values.cpu().detach().numpy().tolist()[0][9]
+                        q_values_dict['fire_up'] = q_values.cpu().detach().numpy().tolist()[0][10]
+                        q_values_dict['fire_right'] = q_values.cpu().detach().numpy().tolist()[0][11]
+                        q_values_dict['fire_left'] = q_values.cpu().detach().numpy().tolist()[0][12]
+                        q_values_dict['fire_down'] = q_values.cpu().detach().numpy().tolist()[0][13]
+                        q_values_dict['fire_upright'] = q_values.cpu().detach().numpy().tolist()[0][14]
+                        q_values_dict['fire_upleft'] = q_values.cpu().detach().numpy().tolist()[0][15]
+                        q_values_dict['fire_downright'] = q_values.cpu().detach().numpy().tolist()[0][16]
+                        q_values_dict['fire_downleft'] = q_values.cpu().detach().numpy().tolist()[0][17]
+
+                        print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
