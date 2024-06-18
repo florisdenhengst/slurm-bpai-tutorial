@@ -251,7 +251,7 @@ if __name__ == "__main__":
                     # if 'q_values' in locals():
                     #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-                    print(q_values.cpu().detach().numpy()[0])
+                    print(q_values.cpu().detach().numpy()[0][0])
                     #writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
