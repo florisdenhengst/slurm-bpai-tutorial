@@ -153,7 +153,10 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
-    q_values_dict = {}  # Dictionary to store Q-values
+    q_values_dict = {'no_operation': 0, 'fire': 0, 'move_up': 0, 'move_right': 0, 'move_left': 0, 'move_down': 0, 
+                     'move_upright': 0, 'move_upleft': 0 , 'move_downright': 0, 'move_downleft': 0, 'fire_up': 0, 
+                     'fire_right': 0, 'fire_left': 0, 'fire_down': 0, 'fire_upright': 0, 'fire_upleft': 0, 
+                     'fire_downright': 0, 'fire_downleft': 0}  # Dictionary to store Q-values
 
     print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
@@ -195,7 +198,7 @@ if __name__ == "__main__":
 
         # reset manually
         
-        if not(env.agents):
+        if not(env.agents): 
             writer.add_scalar("charts/episodic_return", reward_lst["first_0"], global_step)
             writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
             print("All agents done, resetting environment.")
@@ -212,7 +215,7 @@ if __name__ == "__main__":
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
                     # if 'q_values' in locals():
-                    #     q_values_dict[f"{global_step}_{agent}"] = q_values.cpu().detach().numpy().tolist()
+                    #     q_values_dict['no_operation'] = q_values.cpu().detach().numpy().tolist()[0]
                     #     print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
@@ -248,7 +251,7 @@ if __name__ == "__main__":
                     # if 'q_values' in locals():
                     #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
                     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-                    print(type(q_values.cpu().detach().numpy()))
+                    print(q_values.cpu().detach().numpy()[0])
                     #writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
