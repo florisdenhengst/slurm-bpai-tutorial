@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --time=00:15:00
+#SBATCH --time=10:15:00
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=2
 
@@ -9,7 +9,7 @@ cd $TMPDIR/dfe340/anaconda/
 conda init
 conda activate bpai
 # coopdqn.py is the actual one, this is just a test
-python cooprand.py  --env-id entombed_cooperative_v3 --total-timesteps 20000 --track --wandb-project-name cleanrldas --capture_video
+python cooprand.py  --env-id entombed_cooperative_v3 --total-timesteps 1000000 --track --wandb-project-name cleanrldas --capture_video
 
 #python dqnslurm.py --seed $SLURM_ARRAY_TASK_ID --env-id entombed_competitive_v3 --total-timesteps 500000 --track --wandb-project-name cleanrldas --capture_video
 mkdir -p $HOME/slurm-bpai-tutorial/results
