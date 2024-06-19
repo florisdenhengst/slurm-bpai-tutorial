@@ -31,7 +31,7 @@ class Args:
     save_model: bool = False
     upload_model: bool = False
     hf_entity: str = ""
-    env_id: str = "entombed_cooperative_v3"
+    env_id: str = "entombed_competitive_v3"
     total_timesteps: int = 500000
     learning_rate: float = 2.5e-4
     num_envs: int = 1
@@ -50,7 +50,7 @@ class Args:
 def make_env(seed, capture_video, run_name):
     def thunk():
         #removed max cycles
-        env = entombed_cooperative_v3.parallel_env()
+        env = entombed_competitive_v3.parallel_env()
         env = color_reduction_v0(env)
         env = resize_v1(env, 84, 84)
         env = frame_stack_v1(env, 4)
