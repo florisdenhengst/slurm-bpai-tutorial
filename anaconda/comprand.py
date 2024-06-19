@@ -148,6 +148,7 @@ if __name__ == "__main__":
 
     print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
+    total_points = 0
     current_time = 0
     for global_step in range(args.total_timesteps):
         if global_step % 100 == 0:
@@ -186,6 +187,7 @@ if __name__ == "__main__":
         if not(env.agents): 
             writer.add_scalar("charts/episodic_return_dqn", reward_lst["first_0"], global_step)
             writer.add_scalar("charts/episodic_return_random", reward_lst["second_0"], global_step)
+            writer.add_scalar("charts/total_points", total_points, global_step)
             writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
             print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
@@ -200,6 +202,7 @@ if __name__ == "__main__":
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
+                    total_points+= rewards[agent]
                     if 'q_values' in locals():
                         q_values_dict['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
                         q_values_dict['fire'] = q_values.cpu().detach().numpy().tolist()[0][1]
