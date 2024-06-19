@@ -33,7 +33,7 @@ class Args:
     hf_entity: str = ""
     env_id: str = "entombed_competitive_v3"
     total_timesteps: int = 500000
-    learning_rate: float = 2.5e-4
+    learning_rate: float = 2.5e-4 # could increase learning rate, its only 0.00025
     num_envs: int = 1
     buffer_size: int = 10000
     gamma: float = 0.99
@@ -44,7 +44,7 @@ class Args:
     end_e: float = 0.05
     exploration_fraction: float = 0.5
     learning_starts: int = 10000
-    train_frequency: int = 10
+    train_frequency: int = 10 # train it more often? 
 
 
 def make_env(seed, capture_video, run_name):
@@ -71,10 +71,7 @@ class QNetwork(nn.Module):
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
-            #flatten does 64x64 and then / 4 for the frame stack, so it becomes 1024?
             nn.Flatten(),
-            #if i change this so the dimensions are the same, it does not run at all(no print statemetns so it does not start the looop)
-            #nn.Linear(1024, 512),
             nn.Linear(64 * 7 * 7, 512),
             nn.ReLU(),
             nn.Linear(512, action_space)
@@ -118,7 +115,7 @@ if __name__ == "__main__":
     
     env = make_env(args.seed, args.capture_video, run_name)()
     env.reset(seed=args.seed)
-    # added variables for everything for player 2
+
     action_space = env.action_space(env.possible_agents[0]).n
 
     q_network = QNetwork(action_space).to(device)
@@ -146,35 +143,27 @@ if __name__ == "__main__":
                      'fire_right': 0, 'fire_left': 0, 'fire_down': 0, 'fire_upright': 0, 'fire_upleft': 0, 
                      'fire_downright': 0, 'fire_downleft': 0}  # Dictionary to store Q-values
 
-    print('start main')
+    #print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
     total_points = 0
     current_time = 0
     for global_step in range(args.total_timesteps):
-        if global_step % 100 == 0:
-            print(f"Global step: {global_step}")
-        # Log Q-values at the start of each episode
-        # if global_step % 1000 == 0:
-        #     q_values = q_network(torch.Tensor(obs).to(device))
-        #     writer.add_histogram("q_values", q_values, global_step)
-        #     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+        #if global_step % 100 == 0:
+            #print(f"Global step: {global_step}")
+
             
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
         actions = {}
         actions2 = {}
         for agent in env.possible_agents:
             if agent == 'first_0':
-                #print(agent)
-                #print(env.possible_agents)
                 if random.random() < epsilon:
                     actions[agent] = env.action_space(agent).sample()
                 else:
-                    
+                    #highest chance of being wrong
                     q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
-                #print(agent)
-                #print(env.possible_agents)
                 
                 actions[agent] = env.action_space(agent).sample()
                 
@@ -183,13 +172,12 @@ if __name__ == "__main__":
         next_obs, rewards, terminations, truncations, infos = env.step(actions)
 
         # reset manually
-        
         if not(env.agents): 
             writer.add_scalar("charts/episodic_return_dqn", reward_lst["first_0"], global_step)
             writer.add_scalar("charts/episodic_return_random", reward_lst["second_0"], global_step)
             writer.add_scalar("charts/total_points", total_points, global_step)
             writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
-            print("All agents done, resetting environment.")
+            #print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
             reward_lst = {'first_0': 0, 'second_0': 0}
             current_time = global_step
@@ -234,14 +222,13 @@ if __name__ == "__main__":
                     #rb2.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
         
-# now im here
         obs = next_obs
 
         if global_step > args.learning_starts:
             if global_step % args.train_frequency == 0:
-                #print("Optimizing models...")
                 data = rb.sample(args.batch_size)
                 with torch.no_grad():
+                    # the permute might also be wrong?
                     target_max, _ = target_network(data.next_observations.permute(0, 3, 1, 2)).max(dim=1)
                     td_target = data.rewards.flatten() + args.gamma * target_max * (1 - data.dones.flatten())
                 old_val = q_network(data.observations.permute(0, 3, 1, 2)).gather(1, data.actions).squeeze()
@@ -249,33 +236,25 @@ if __name__ == "__main__":
                 
                 
                 if global_step % 100 == 0:
-                    # if 'q_values' in locals():
-                    #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
-                    # print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-                    # print(q_values.cpu().detach().numpy()[0][0])
                     writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
-                    print("SPS:", int(global_step / (time.time() - start_time)))
-                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
-                    #p2
-                    
                     #print("SPS:", int(global_step / (time.time() - start_time)))
-                    #writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+                    
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 
             if global_step % args.target_network_frequency == 0:
-                print("Updating target networks...")
+                #print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
-                #target_network2.load_state_dict(q_network2.state_dict())
-    print("Training completed.")
+
+    #print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
-        #torch.save(q_network2.state_dict(), model_path + "_p2")
         print(f"model saved to {model_path}")
 
         
