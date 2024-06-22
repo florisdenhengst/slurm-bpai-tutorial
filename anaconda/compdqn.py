@@ -152,8 +152,13 @@ if __name__ == "__main__":
     start_time = time.time()
 
     obs, _ = env.reset(seed=args.seed)
-    print('start main')
+    #print('start main')
+    q_values_dict = {'no_operation': 0, 'fire': 0, 'move_up': 0, 'move_right': 0, 'move_left': 0, 'move_down': 0, 
+                     'move_upright': 0, 'move_upleft': 0 , 'move_downright': 0, 'move_downleft': 0, 'fire_up': 0, 
+                     'fire_right': 0, 'fire_left': 0, 'fire_down': 0, 'fire_upright': 0, 'fire_upleft': 0, 
+                     'fire_downright': 0, 'fire_downleft': 0}  # Dictionary to store Q-values
     reward_lst = {'first_0': 0, 'second_0': 0}
+    total_points = 0
     current_time = 0
     for global_step in range(args.total_timesteps):
         if global_step % 100 == 0:
@@ -195,7 +200,8 @@ if __name__ == "__main__":
         if not(env.agents):
             writer.add_scalar("charts/episodic_return", reward_lst["first_0"], global_step)
             writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
-            print("All agents done, resetting environment.")
+            writer.add_scalar("charts/total_points", total_points, global_step)
+            #print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
             reward_lst = {'first_0': 0, 'second_0': 0}
             current_time = global_step
@@ -208,6 +214,26 @@ if __name__ == "__main__":
                     if truncations[agent]:
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
+                    total_points += rewards[agent]
+                    if 'q_values' in locals():
+                        q_values_dict['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
+                        q_values_dict['fire'] = q_values.cpu().detach().numpy().tolist()[0][1]
+                        q_values_dict['move_up'] = q_values.cpu().detach().numpy().tolist()[0][2]
+                        q_values_dict['move_right'] = q_values.cpu().detach().numpy().tolist()[0][3]
+                        q_values_dict['move_left'] = q_values.cpu().detach().numpy().tolist()[0][4]
+                        q_values_dict['move_down'] = q_values.cpu().detach().numpy().tolist()[0][5]
+                        q_values_dict['move_upright'] = q_values.cpu().detach().numpy().tolist()[0][6]
+                        q_values_dict['move_upleft'] = q_values.cpu().detach().numpy().tolist()[0][7]
+                        q_values_dict['move_downright'] = q_values.cpu().detach().numpy().tolist()[0][8]
+                        q_values_dict['move_downleft'] = q_values.cpu().detach().numpy().tolist()[0][9]
+                        q_values_dict['fire_up'] = q_values.cpu().detach().numpy().tolist()[0][10]
+                        q_values_dict['fire_right'] = q_values.cpu().detach().numpy().tolist()[0][11]
+                        q_values_dict['fire_left'] = q_values.cpu().detach().numpy().tolist()[0][12]
+                        q_values_dict['fire_down'] = q_values.cpu().detach().numpy().tolist()[0][13]
+                        q_values_dict['fire_upright'] = q_values.cpu().detach().numpy().tolist()[0][14]
+                        q_values_dict['fire_upleft'] = q_values.cpu().detach().numpy().tolist()[0][15]
+                        q_values_dict['fire_downright'] = q_values.cpu().detach().numpy().tolist()[0][16]
+                        q_values_dict['fire_downleft'] = q_values.cpu().detach().numpy().tolist()[0][17]
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
 
                 elif agent == 'second_0':
@@ -240,8 +266,8 @@ if __name__ == "__main__":
 
                 if global_step % 100 == 0:
                     #writer.add_histogram("q_values", q_values, global_step)
-                    print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-
+                    #print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+                    writer.add_scalars("Q-values", q_values_dict, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
@@ -249,7 +275,7 @@ if __name__ == "__main__":
                     #p2
                     writer.add_scalar("losses/td_loss2", loss2, global_step)
                     writer.add_scalar("losses/q_values2", old_val2.mean().item(), global_step)
-                    print("SPS:", int(global_step / (time.time() - start_time)))
+                    #print("SPS:", int(global_step / (time.time() - start_time)))
                     #writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
 
                 optimizer.zero_grad()
@@ -261,10 +287,10 @@ if __name__ == "__main__":
                 optimizer2.step()
 
             if global_step % args.target_network_frequency == 0:
-                print("Updating target networks...")
+                #print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
                 target_network2.load_state_dict(q_network2.state_dict())
-    print("Training completed.")
+    #print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)

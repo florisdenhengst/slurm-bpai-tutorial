@@ -158,12 +158,12 @@ if __name__ == "__main__":
                      'fire_right': 0, 'fire_left': 0, 'fire_down': 0, 'fire_upright': 0, 'fire_upleft': 0, 
                      'fire_downright': 0, 'fire_downleft': 0}  # Dictionary to store Q-values
 
-    print('start main')
+    #print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
     current_time = 0
     for global_step in range(args.total_timesteps):
-        if global_step % 100 == 0:
-            print(f"Global step: {global_step}")
+        #if global_step % 100 == 0:
+            #print(f"Global step: {global_step}")
         # Log Q-values at the start of each episode
         # if global_step % 1000 == 0:
         #     q_values = q_network(torch.Tensor(obs).to(device))
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         if not(env.agents): 
             writer.add_scalar("charts/episodic_return", reward_lst["first_0"], global_step)
             writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
-            print("All agents done, resetting environment.")
+            #print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
             reward_lst = {'first_0': 0, 'second_0': 0}
             current_time = global_step
@@ -271,10 +271,10 @@ if __name__ == "__main__":
                     #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
                     # print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
                     # print(q_values.cpu().detach().numpy()[0][0])
-                    #writer.add_scalars("Q-values", q_values_dict, global_step)
+                    writer.add_scalars("Q-values",{q_values_dict}, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
-                    print("SPS:", int(global_step / (time.time() - start_time)))
+                    #print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
                     #p2
                     writer.add_scalar("losses/td_loss2", loss2, global_step)
@@ -291,10 +291,10 @@ if __name__ == "__main__":
                 optimizer2.step()
 
             if global_step % args.target_network_frequency == 0:
-                print("Updating target networks...")
+                #print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
                 target_network2.load_state_dict(q_network2.state_dict())
-    print("Training completed.")
+    #print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
