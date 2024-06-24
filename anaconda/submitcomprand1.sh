@@ -16,3 +16,4 @@ mkdir -p $HOME/slurm-bpai-tutorial/results
 cp -r $TMPDIR/dfe340/anaconda/wandb $HOME/slurm-bpai-tutorial/results
 cp -r $TMPDIR/dfe340/anaconda/runs $HOME/slurm-bpai-tutorial/results
 rm -rf $TMPDIR/dfe340/anaconda
+#test
