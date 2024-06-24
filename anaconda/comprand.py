@@ -258,7 +258,7 @@ if __name__ == "__main__":
 
     #print("Training completed.")
     if args.save_model:
-        model_path = f"run/{run_name}/{args.exp_name}.cleanrl_model"
+        model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
         print(f"model saved to {model_path}")
 
