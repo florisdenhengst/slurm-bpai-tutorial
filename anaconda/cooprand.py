@@ -28,7 +28,7 @@ class Args:
     wandb_project_name: str = "cleanRL"
     wandb_entity: str = None
     capture_video: bool = False
-    save_model: bool = False
+    save_model: bool = True
     upload_model: bool = False
     hf_entity: str = ""
     env_id: str = "entombed_cooperative_v3"
@@ -71,10 +71,7 @@ class QNetwork(nn.Module):
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, stride=1),
             nn.ReLU(),
-            #flatten does 64x64 and then / 4 for the frame stack, so it becomes 1024?
             nn.Flatten(),
-            #if i change this so the dimensions are the same, it does not run at all(no print statemetns so it does not start the looop)
-            #nn.Linear(1024, 512),
             nn.Linear(64 * 7 * 7, 512),
             nn.ReLU(),
             nn.Linear(512, action_space)
@@ -152,21 +149,16 @@ if __name__ == "__main__":
     reward_lst = {'first_0': 0, 'second_0': 0}
     current_time = 0
     for global_step in range(args.total_timesteps):
-        if global_step % 100 == 0:
-            print(f"Global step: {global_step}")
-        # Log Q-values at the start of each episode
-        # if global_step % 1000 == 0:
-        #     q_values = q_network(torch.Tensor(obs).to(device))
-        #     writer.add_histogram("q_values", q_values, global_step)
-        #     print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
+        # if global_step % 100 == 0:
+        #     print(f"Global step: {global_step}")
+
             
         epsilon = linear_schedule(args.start_e, args.end_e, args.exploration_fraction * args.total_timesteps, global_step)
         actions = {}
         actions2 = {}
         for agent in env.possible_agents:
             if agent == 'first_0':
-                #print(agent)
-                #print(env.possible_agents)
+                
                 if random.random() < epsilon:
                     actions[agent] = env.action_space(agent).sample()
                 else:
@@ -174,8 +166,6 @@ if __name__ == "__main__":
                     q_values = q_network(torch.Tensor(obs[agent]).permute((2,0,1)).unsqueeze(0).to(device))
                     actions[agent] = torch.argmax(q_values, dim=1).cpu().numpy()[0]
             elif agent == 'second_0':
-                #print(agent)
-                #print(env.possible_agents)
                 
                 actions[agent] = env.action_space(agent).sample()
                 
@@ -189,7 +179,7 @@ if __name__ == "__main__":
             writer.add_scalar("charts/episodic_return_dqn", reward_lst["first_0"], global_step)
             writer.add_scalar("charts/episodic_return_random", reward_lst["second_0"], global_step)
             writer.add_scalar("charts/episodic_length", global_step-current_time, global_step)
-            print("All agents done, resetting environment.")
+            #print("All agents done, resetting environment.")
             obs, _ = env.reset(seed=args.seed)
             reward_lst = {'first_0': 0, 'second_0': 0}
             current_time = global_step
@@ -252,29 +242,24 @@ if __name__ == "__main__":
                 
                 
                 if global_step % 100 == 0:
-                    # if 'q_values' in locals():
-                    #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
-                    # print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
-                    # print(q_values.cpu().detach().numpy()[0][0])
+                    
                     writer.add_scalars("Q-values", q_values_dict_new, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
-                    print("SPS:", int(global_step / (time.time() - start_time)))
-                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
-                    #p2
-                    
                     #print("SPS:", int(global_step / (time.time() - start_time)))
-                    #writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+                    writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+                    
+                    
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 
             if global_step % args.target_network_frequency == 0:
-                print("Updating target networks...")
+                #print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
                 #target_network2.load_state_dict(q_network2.state_dict())
-    print("Training completed.")
+    #print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
