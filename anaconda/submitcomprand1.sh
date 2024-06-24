@@ -15,4 +15,4 @@ python comprand.py --learning_rate 2.5e-3 --env-id entombed_competitive_v3 --tot
 mkdir -p $HOME/slurm-bpai-tutorial/results
 cp -r $TMPDIR/dfe340/anaconda/wandb $HOME/slurm-bpai-tutorial/results
 cp -r $TMPDIR/dfe340/anaconda/runs $HOME/slurm-bpai-tutorial/results
-rm -rf $TMPDIR/dfe340/python
+rm -rf $TMPDIR/dfe340/anaconda
