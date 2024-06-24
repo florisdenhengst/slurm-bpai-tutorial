@@ -241,7 +241,7 @@ if __name__ == "__main__":
                 
                 
                 if global_step % 100 == 0:
-                    #writer.add_scalars("Q-values", q_values_dict, global_step)
+                    writer.add_scalars("Q-values", q_values_dict_new, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     #print("SPS:", int(global_step / (time.time() - start_time)))
