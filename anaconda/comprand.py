@@ -28,7 +28,7 @@ class Args:
     wandb_project_name: str = "cleanRL"
     wandb_entity: str = None
     capture_video: bool = False
-    save_model: bool = False
+    save_model: bool = True
     upload_model: bool = False
     hf_entity: str = ""
     env_id: str = "entombed_competitive_v3"
@@ -214,7 +214,7 @@ if __name__ == "__main__":
                     if 'q_values' in locals():
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
                         q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])) / 9
-                        q_values_dict_new['move'] = q_values.cpu().detach().numpy().tolist()[0][2:10].mean().item()
+                        q_values_dict_new['move'] = sum(q_values.cpu().detach().numpy().tolist()[0][2:10]) / 8
 
                         #print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
