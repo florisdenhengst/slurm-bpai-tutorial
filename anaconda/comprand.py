@@ -213,7 +213,7 @@ if __name__ == "__main__":
                     #     q_values_dict['fire_downleft'] = q_values.cpu().detach().numpy().tolist()[0][17]
                     if 'q_values' in locals():
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
-                        q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])).mean().item()
+                        q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])) / 9
                         q_values_dict_new['move'] = q_values.cpu().detach().numpy().tolist()[0][2:10].mean().item()
 
                         #print(q_values_dict)
