@@ -145,6 +145,8 @@ if __name__ == "__main__":
                      'move_upright': 0, 'move_upleft': 0 , 'move_downright': 0, 'move_downleft': 0, 'fire_up': 0, 
                      'fire_right': 0, 'fire_left': 0, 'fire_down': 0, 'fire_upright': 0, 'fire_upleft': 0, 
                      'fire_downright': 0, 'fire_downleft': 0}  # Dictionary to store Q-values
+    q_values_dict_new = {'no_operation': 0, 'fire': 0, 'move': 0}
+
 
     print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
@@ -219,6 +221,10 @@ if __name__ == "__main__":
                     #     q_values_dict['fire_upleft'] = q_values.cpu().detach().numpy().tolist()[0][15]
                     #     q_values_dict['fire_downright'] = q_values.cpu().detach().numpy().tolist()[0][16]
                     #     q_values_dict['fire_downleft'] = q_values.cpu().detach().numpy().tolist()[0][17]
+                    if 'q_values' in locals():
+                        q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
+                        q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])) / 9
+                        q_values_dict_new['move'] = sum(q_values.cpu().detach().numpy().tolist()[0][2:10]) / 8
 
                         #print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
@@ -250,7 +256,7 @@ if __name__ == "__main__":
                     #writer.add_histogram("q_values", q_values.cpu().detach().numpy(), global_step)
                     # print(f"Q-values at step {global_step}: {q_values.cpu().detach().numpy()}")
                     # print(q_values.cpu().detach().numpy()[0][0])
-                    #writer.add_scalars("Q-values", q_values_dict, global_step)
+                    writer.add_scalars("Q-values", q_values_dict_new, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     print("SPS:", int(global_step / (time.time() - start_time)))
