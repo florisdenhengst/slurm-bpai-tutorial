@@ -31,7 +31,7 @@ class Args:
     save_model: bool = True
     upload_model: bool = False
     hf_entity: str = ""
-    env_id: str = "entombed_competitive_v3"
+    env_id: str = "entombed_cooperative_v3"
     total_timesteps: int = 1500000
     learning_rate: float = 2.5e-4 # could increase learning rate, its only 0.00025
     num_envs: int = 1
@@ -45,13 +45,13 @@ class Args:
     exploration_fraction: float = 0.5
     learning_starts: int = 1500000
     train_frequency: int = 10 # train it more often? 
-    save_path = "entombed_competitive_v3__comprand__1__1719330740"
+    save_path = "entombed_cooperative_v3__cooprand__3__1719330760"
 
 
 def make_env(seed, capture_video, run_name):
     def thunk():
         #removed max cycles
-        env = entombed_competitive_v3.parallel_env()
+        env = entombed_cooperative_v3.parallel_env()
         env = color_reduction_v0(env)
         env = resize_v1(env, 84, 84)
         env = frame_stack_v1(env, 4)
