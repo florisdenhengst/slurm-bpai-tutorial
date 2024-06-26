@@ -184,6 +184,7 @@ if __name__ == "__main__":
             obs, _ = env.reset(seed=args.seed)
             reward_lst = {'first_0': 0, 'second_0': 0}
             current_time = global_step
+            nr_of_rounds_points += 1
 
         else:
             for agent in env.possible_agents:
@@ -194,7 +195,7 @@ if __name__ == "__main__":
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
                     total_points+= rewards[agent]
-                    nr_of_rounds_points +=1
+                    #nr_of_rounds_points +=1
                     
                     if 'q_values' in locals():
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
