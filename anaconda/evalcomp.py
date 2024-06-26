@@ -148,6 +148,7 @@ if __name__ == "__main__":
     #print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
     total_points = 0
+    nr_of_rounds_points = 0
     current_time = 0
     for global_step in range(args.total_timesteps):
         #if global_step % 100 == 0:
@@ -193,6 +194,7 @@ if __name__ == "__main__":
                         real_next_obs = infos[agent]["final_observation"]
                     reward_lst['first_0']+= rewards[agent]
                     total_points+= rewards[agent]
+                    nr_of_rounds_points +=1
                     
                     if 'q_values' in locals():
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
@@ -239,7 +241,8 @@ if __name__ == "__main__":
             if global_step % args.target_network_frequency == 0:
                 #print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
-
+    print(total_points, nr_of_rounds_points)
+    print(total_points/ nr_of_rounds_points)
     #print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
