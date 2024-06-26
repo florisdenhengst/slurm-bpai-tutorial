@@ -120,7 +120,7 @@ if __name__ == "__main__":
     action_space = env.action_space(env.possible_agents[0]).n
     q_network = QNetwork(action_space).to(device)
     #q_network = QNetwork(env).to(device)
-    q_network.load_state_dict(torch.load(f"results/runs/{args.save_path}/comprand.cleanrl_model"))
+    q_network.load_state_dict(torch.load(f"results/runs/{args.save_path}/cooprand.cleanrl_model"))
 
     
 
