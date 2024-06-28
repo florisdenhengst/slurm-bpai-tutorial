@@ -249,6 +249,7 @@ if __name__ == "__main__":
                     
                     writer.add_scalars("Q-values", q_values_dict_new, global_step)
                     writer.add_scalar("losses/td_loss", loss, global_step)
+                    writer.add_scalar("diff_q_values", q_values_dict_new['move'] - q_values_dict_new['fire'])
                     writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
                     #print("SPS:", int(global_step / (time.time() - start_time)))
                     writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
