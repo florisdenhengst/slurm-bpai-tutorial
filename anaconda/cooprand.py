@@ -143,7 +143,8 @@ if __name__ == "__main__":
                      'fire_right': 0, 'fire_left': 0, 'fire_down': 0, 'fire_upright': 0, 'fire_upleft': 0, 
                      'fire_downright': 0, 'fire_downleft': 0}  # Dictionary to store Q-values
     q_values_dict_new = {'no_operation': 0, 'fire': 0, 'move': 0}
-
+    fire =0
+    move = 0
 
     print('start main')
     reward_lst = {'first_0': 0, 'second_0': 0}
@@ -219,6 +220,10 @@ if __name__ == "__main__":
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
                         q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])) / 9
                         q_values_dict_new['move'] = sum(q_values.cpu().detach().numpy().tolist()[0][2:10]) / 8
+                    if (q_values_dict_new['move'] - q_values_dict_new['fire']) > 0:
+                        move+=1
+                    if (q_values_dict_new['move'] - q_values_dict_new['fire']) < 0:
+                        fire+=1
 
                         #print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
@@ -264,6 +269,7 @@ if __name__ == "__main__":
                 #print("Updating target networks...")
                 target_network.load_state_dict(q_network.state_dict())
                 #target_network2.load_state_dict(q_network2.state_dict())
+    print(f"fire:{fire}, move:{move}")
     #print("Training completed.")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"

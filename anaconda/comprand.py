@@ -148,6 +148,8 @@ if __name__ == "__main__":
     reward_lst = {'first_0': 0, 'second_0': 0}
     total_points = 0
     current_time = 0
+    move=0
+    fire=0
     for global_step in range(args.total_timesteps):
         #if global_step % 100 == 0:
             #print(f"Global step: {global_step}")
@@ -215,6 +217,10 @@ if __name__ == "__main__":
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
                         q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])) / 9
                         q_values_dict_new['move'] = sum(q_values.cpu().detach().numpy().tolist()[0][2:10]) / 8
+                    if (q_values_dict_new['move'] - q_values_dict_new['fire']) > 0:
+                        move+=1
+                    if (q_values_dict_new['move'] - q_values_dict_new['fire']) < 0:
+                        fire+=1
 
                         #print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
@@ -258,6 +264,7 @@ if __name__ == "__main__":
                 target_network.load_state_dict(q_network.state_dict())
 
     #print("Training completed.")
+    print(f"fire:{fire}, move:{move}")
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
