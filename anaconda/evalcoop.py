@@ -45,7 +45,8 @@ class Args:
     exploration_fraction: float = 0.5
     learning_starts: int = 1500000
     train_frequency: int = 10 # train it more often? 
-    save_path = "entombed_cooperative_v3__cooprand__3__1719330760"
+    #save_path = "entombed_cooperative_v3__cooprand__3__1719330760"
+    save_path = "entombed_cooperative_v3__cooprand__1__1719422842"
 
 
 def make_env(seed, capture_video, run_name):
@@ -150,6 +151,8 @@ if __name__ == "__main__":
     total_points = 0
     nr_of_rounds_point = 0
     current_time = 0
+    move=0
+    fire=0
     for global_step in range(args.total_timesteps):
         #if global_step % 100 == 0:
             #print(f"Global step: {global_step}")
@@ -201,6 +204,10 @@ if __name__ == "__main__":
                         q_values_dict_new['no_operation'] = q_values.cpu().detach().numpy().tolist()[0][0]
                         q_values_dict_new['fire'] = (q_values.cpu().detach().numpy().tolist()[0][1] + sum(q_values.cpu().detach().numpy().tolist()[0][10:18])) / 9
                         q_values_dict_new['move'] = sum(q_values.cpu().detach().numpy().tolist()[0][2:10]) / 8
+                    if (q_values_dict_new['move'] - q_values_dict_new['fire']) > 0:
+                        move+=1
+                    if (q_values_dict_new['move'] - q_values_dict_new['fire']) < 0:
+                        fire+=1
 
                         #print(q_values_dict)
                     rb.add(obs[agent], real_next_obs, actions[agent], rewards[agent], terminations[agent], infos[agent])
@@ -246,6 +253,8 @@ if __name__ == "__main__":
     #print("Training completed.")
     print(total_points, nr_of_rounds_point)
     print(total_points/nr_of_rounds_point)
+    print(f"fire:{fire}, move:{move}")
+
     if args.save_model:
         model_path = f"runs/{run_name}/{args.exp_name}.cleanrl_model"
         torch.save(q_network.state_dict(), model_path)
