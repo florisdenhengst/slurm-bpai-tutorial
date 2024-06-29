@@ -45,8 +45,8 @@ class Args:
     exploration_fraction: float = 0.5
     learning_starts: int = 1500000
     train_frequency: int = 10 # train it more often? 
-    #save_path = "entombed_cooperative_v3__cooprand__3__1719330760"
-    save_path = "entombed_cooperative_v3__cooprand__1__1719422842"
+    save_path = "entombed_cooperative_v3__cooprand__3__1719330760"
+    #save_path = "entombed_cooperative_v3__cooprand__1__1719422842"
 
 
 def make_env(seed, capture_video, run_name):
