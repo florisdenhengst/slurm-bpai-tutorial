@@ -45,8 +45,9 @@ class Args:
     exploration_fraction: float = 0.5
     learning_starts: int = 1500000
     train_frequency: int = 10 # train it more often? 
-    save_path = "entombed_competitive_v3__comprand__1__1719330740"
+    #save_path = "entombed_competitive_v3__comprand__1__1719330740"
     #save_path = "entombed_competitive_v3__comprand__1__1719649020"
+    save_path = "entombed_competitive_v3__comprand__3__1719595023"
 
 
 def make_env(seed, capture_video, run_name):
